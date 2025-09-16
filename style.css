@@ -1,0 +1,30 @@
+body {
+  /* place the background image behind the game (cover, centered) */
+  background: url('Assets/bg.jpg') center/cover no-repeat fixed, #0f172a;
+  color: #0a0a0a;
+  font-family: 'Helvetica', sans-serif;
+  text-align: center;
+}
+canvas {
+  /* keep a dark canvas background so UI text is readable */
+  background: rgba(15,23,42,0.7);
+  border: 2px solid #e5e7eb;
+  display: block;
+  margin: 10px auto;
+}
+.controls {
+  margin: 10px;
+}
+button {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  margin: 5px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:nth-child(2) {
+  background: #ef4444;
+}
