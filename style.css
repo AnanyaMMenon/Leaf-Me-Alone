@@ -5,6 +5,39 @@ body {
   font-family: 'Helvetica', sans-serif;
   text-align: center;
 }
+/* make title more visible */
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 18px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.site-header, .site-footer {
+  background: rgba(10, 10, 10, 0.5);
+  backdrop-filter: blur(4px);
+  padding: 12px 0;
+}
+
+#highscore {
+  color: #ffd166;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.game-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 18px 0;
+}
+
+.game-panel {
+  background: rgba(15,23,42,0.5);
+  padding: 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
 canvas {
   /* keep a dark canvas background so UI text is readable */
   background: rgba(15,23,42,0.7);
@@ -25,6 +58,23 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
-button:nth-child(2) {
-  background: #ef4444;
+/* controls buttons: Start (1), Reset (2), Quit (3) */
+.controls button:nth-child(1) {
+  background: #22c55e; /* Start - green */
+}
+.controls button:nth-child(2) {
+  background: #f59e0b; /* Reset - amber */
+  color: #fff;
+}
+.controls button:nth-child(3) {
+  background: #ef4444; /* Quit - red */
+}
+
+/* HUD (score/lives) styling */
+#score {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  margin-top: 8px;
 }

@@ -2,17 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Falling Leaf Catch 🍂</title>
+  <title>Leaf Me Alone🍂</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Leaf Me Alone 🍂</h1>
-  <canvas id="gameCanvas" width="480" height="640"></canvas>
-  <div class="controls">
-    <button onclick="startGame()">Start</button>
-    <button onclick="stopGame()">Quit</button>
-  </div>
-  <p id="score">Score: 0 | Lives: ❤️❤️❤️</p>
+  <header class="site-header">
+    <h1>Leaf Me Alone🍂</h1>
+      <div id="highscore">Highscore: 0</div>
+  </header>
+
+  <main class="game-wrap">
+    <div class="game-panel">
+      <canvas id="gameCanvas" width="480" height="640"></canvas>
+      <div class="controls">
+        <button onclick="startGame()">Start</button>
+        <button onclick="resetGame()">Reset</button>
+        <button onclick="stopGame()">Quit</button>
+      </div>
+      <p id="score">Score: 0 | Lives: ❤️❤️❤️</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with 🍁 by Ananyahaha</p>
+  </footer>
   <script src="game.js"></script>
 </body>
 </html>

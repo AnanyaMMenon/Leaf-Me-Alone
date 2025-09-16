@@ -34,6 +34,14 @@ let basket = {
 let score = 0;
 let lives = 3;
 let running = false;
+// load highscore from localStorage
+let highscore = 0;
+try {
+  const stored = localStorage.getItem('leaf_highscore');
+  if (stored) highscore = parseInt(stored, 10) || 0;
+} catch (e) {
+  // ignore
+}
 
 function Leaf() {
   this.r = Math.random() * 10 + 10;
@@ -278,6 +286,13 @@ function spawnLeaf() {
 
 function updateHUD() {
   document.getElementById("score").textContent = `Score: ${score} | Lives: ${"❤️".repeat(lives)}`;
+  // update header highscore display
+  if (score > highscore) {
+    highscore = score;
+    try { localStorage.setItem('leaf_highscore', String(highscore)); } catch (e) {}
+  }
+  const hsEl = document.getElementById('highscore');
+  if (hsEl) hsEl.textContent = `Highscore: ${highscore}`;
 }
 
 function startGame() {
@@ -290,18 +305,45 @@ function startGame() {
   spawnLeaf();
 }
 
+function resetGame() {
+  // reset everything to initial state but don't auto-start
+  running = false;
+  score = 0;
+  lives = 3;
+  leaves = [];
+  basket.fullness = 0;
+  basket.open = 0;
+  basket.openTarget = 0;
+  basket.handleBounce = 0;
+  basket.handleTilt = 0;
+  basket.fullAnimTimer = 0;
+  updateHUD();
+  // clear canvas to remove lingering visuals
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+}
+
 function stopGame() {
   running = false;
-  ctx.fillStyle = "#e5e7eb";
   ctx.font = "22px Helvetica";
-  ctx.fillText("Game Over — Score: " + score, WIDTH / 2 - 130, HEIGHT / 2);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillStyle = '#e5e7eb';
+  ctx.strokeText("Game Over — Score: " + score, WIDTH / 2, HEIGHT / 2);
+  ctx.fillText("Game Over — Score: " + score, WIDTH / 2, HEIGHT / 2);
 }
 
 function gameOver() {
   running = false;
-  ctx.fillStyle = "#e5e7eb";
   ctx.font = "22px Helvetica";
-  ctx.fillText("Game Over — Score: " + score, WIDTH / 2 - 130, HEIGHT / 2);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillStyle = '#e5e7eb';
+  ctx.strokeText("Game Over — Score: " + score, WIDTH / 2, HEIGHT / 2);
+  ctx.fillText("Game Over — Score: " + score, WIDTH / 2, HEIGHT / 2);
 }
 
 // controls
