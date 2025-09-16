@@ -42,6 +42,118 @@ try {
 } catch (e) {
   // ignore
 }
+// sound preference
+let soundEnabled = true;
+try { const s = localStorage.getItem('leaf_sound'); if (s !== null) soundEnabled = s === '1'; } catch (e) {}
+
+// simple confetti particle pool
+const confetti = [];
+function spawnConfetti(x, y, count = 40) {
+  for (let i = 0; i < count; i++) {
+    confetti.push({
+      x: x + (Math.random() - 0.5) * 40,
+      y: y + (Math.random() - 0.5) * 20,
+      vx: (Math.random() - 0.5) * 4,
+      vy: -2 - Math.random() * 3,
+      size: 4 + Math.random() * 6,
+      life: 60 + Math.random() * 60,
+      color: ['#f59e0b','#ef4444','#f97316','#ffd166'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+function updateConfetti() {
+  for (let i = confetti.length - 1; i >= 0; i--) {
+    const p = confetti[i];
+    p.vy += 0.15; // gravity
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+    if (p.life <= 0 || p.y > HEIGHT + 50) confetti.splice(i, 1);
+  }
+}
+
+function drawConfetti() {
+  confetti.forEach(p => {
+    ctx.save();
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, p.size, p.size * 0.6, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// setup a tiny beep using Web Audio API
+let audioCtx = null;
+function playBeep() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = 880;
+    g.gain.value = 0.0001;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    g.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.26);
+    o.stop(audioCtx.currentTime + 0.27);
+  } catch (e) { /* ignore */ }
+}
+
+// two-tone pleasant catch sound
+function playCatchSound() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const g = audioCtx.createGain();
+    g.connect(audioCtx.destination);
+
+    const o1 = audioCtx.createOscillator();
+    o1.type = 'triangle';
+    o1.frequency.value = 620;
+    o1.connect(g);
+
+    const o2 = audioCtx.createOscillator();
+    o2.type = 'sine';
+    o2.frequency.value = 820;
+    o2.connect(g);
+
+    // gentle envelope
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.12, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+
+    o1.start(now);
+    o2.start(now + 0.02);
+    o1.stop(now + 0.16);
+    o2.stop(now + 0.16);
+  } catch (e) { /* ignore */ }
+}
+
+// low soft thud for misses
+function playMissSound() {
+  if (!soundEnabled) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.value = 120;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.14, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    o.start(now);
+    o.stop(now + 0.2);
+  } catch (e) { /* ignore */ }
+}
 
 function Leaf() {
   this.r = Math.random() * 10 + 10;
@@ -116,7 +228,7 @@ function drawBasket() {
   ctx.fill();
 
   // basket body (rounded rectangle)
-  ctx.fillStyle = '#8b5a2b'; // warm brown
+  ctx.fillStyle = '#6b3f1a'; // slightly darker warm brown
   const r = Math.min(12, Math.round(h / 3));
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -133,7 +245,7 @@ function drawBasket() {
 
   // rim / top band
   const rimH = Math.max(6, Math.round(h * 0.28));
-  ctx.fillStyle = '#6b3f1f';
+  ctx.fillStyle = '#553015';
   ctx.fillRect(x, y, w, rimH);
 
   // handle: an arched metal/wood handle above the basket that bounces on catch
@@ -242,6 +354,7 @@ function update() {
       const offset = (leaf.x - center) / (bw / 2); // -1..1
       basket.handleBounce = 8;
       basket.handleTilt = offset * 12; // tilt angle in degrees
+      if (soundEnabled) playCatchSound();
       // if basket is full, trigger a full animation and give a small bonus
       if (basket.fullness >= basket.capacity) {
         basket.fullAnimTimer = 60; // 60 frames of 'full' animation
@@ -260,6 +373,7 @@ function update() {
       // decay fullness slightly when you miss
       basket.fullness = Math.max(0, basket.fullness - 1);
       basket.openTarget = Math.min(1, basket.fullness / basket.capacity);
+      if (soundEnabled) playMissSound();
       updateHUD();
       if (lives <= 0) {
         gameOver();
@@ -275,6 +389,10 @@ function update() {
   }
 
   drawBasket();
+  // update and draw confetti at the end so it appears above most elements
+  updateConfetti();
+  drawConfetti();
+
   requestAnimationFrame(update);
 }
 
@@ -286,13 +404,19 @@ function spawnLeaf() {
 
 function updateHUD() {
   document.getElementById("score").textContent = `Score: ${score} | Lives: ${"❤️".repeat(lives)}`;
-  // update header highscore display
+  // update header highscore display and flash when new
+  const hsEl = document.getElementById('highscore');
   if (score > highscore) {
     highscore = score;
     try { localStorage.setItem('leaf_highscore', String(highscore)); } catch (e) {}
+    if (hsEl) {
+      hsEl.textContent = `Highscore: ${highscore}`;
+      hsEl.classList.add('new-highscore');
+      setTimeout(() => hsEl.classList.remove('new-highscore'), 1200);
+    }
+  } else {
+    if (hsEl) hsEl.textContent = `Highscore: ${highscore}`;
   }
-  const hsEl = document.getElementById('highscore');
-  if (hsEl) hsEl.textContent = `Highscore: ${highscore}`;
 }
 
 function startGame() {
@@ -357,4 +481,18 @@ canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   basket.x = mouseX - basket.w / 2;
+});
+
+// sound toggle button wiring
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('soundToggle');
+  if (!btn) return;
+  btn.textContent = soundEnabled ? '🔊' : '🔈';
+  btn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+  btn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    try { localStorage.setItem('leaf_sound', soundEnabled ? '1' : '0'); } catch (e) {}
+    btn.textContent = soundEnabled ? '🔊' : '🔈';
+    btn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+  });
 });

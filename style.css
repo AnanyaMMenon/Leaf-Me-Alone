@@ -14,16 +14,40 @@ h1 {
   text-shadow: 0 2px 6px rgba(0,0,0,0.6);
 }
 
-.site-header, .site-footer {
+.site-header {
   background: rgba(10, 10, 10, 0.5);
   backdrop-filter: blur(4px);
   padding: 12px 0;
+}
+
+#soundToggle {
+  background: transparent;
+  border: none;
+  color: #ffd166;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 8px;
 }
 
 #highscore {
   color: #ffd166;
   font-weight: 700;
   margin-top: 6px;
+}
+
+/* new highscore animation */
+.new-highscore {
+  animation: hs-pop 1s ease forwards;
+}
+.hs-new {
+  margin-left: 8px;
+  color: #fff3d6;
+  font-weight: 800;
+}
+@keyframes hs-pop {
+  0% { transform: scale(1); text-shadow: none; }
+  40% { transform: scale(1.2); text-shadow: 0 6px 18px rgba(255,200,80,0.6); }
+  100% { transform: scale(1); text-shadow: 0 2px 8px rgba(255,200,80,0.4); }
 }
 
 .game-wrap {
@@ -47,6 +71,27 @@ canvas {
 }
 .controls {
   margin: 10px;
+}
+/* button hover/active states */
+.controls button {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.controls button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+.controls button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* HUD layout in header */
+#hud {
+  margin-top: 6px;
+}
+#hud #score {
+  font-size: 16px;
+  color: #fff;
 }
 button {
   background: #22c55e;
